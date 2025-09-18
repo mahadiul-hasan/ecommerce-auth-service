@@ -1,0 +1,255 @@
+openapi: 3.0.0
+info:
+    title: Auth Service API
+    version: 1.0.0
+    description: API documentation for Auth Service
+
+servers:
+    - url: http://localhost:5002/api
+      description: Local auth service
+
+tags:
+    - name: Auth
+      description: Authentication routes
+    - name: OAuth
+      description: Google OAuth login
+
+paths:
+    /auth/login:
+        post:
+            tags:
+                - Auth
+            summary: Login a user with email/password
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - email
+                                - password
+                            properties:
+                                email:
+                                    type: string
+                                    example: user@example.com
+                                password:
+                                    type: string
+                                    example: password123
+            responses:
+                201:
+                    description: User logged in successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/AuthResponse"
+                400:
+                    description: Invalid input
+                401:
+                    description: Invalid credentials
+
+    /auth/refresh-token:
+        post:
+            tags:
+                - Auth
+            summary: Refresh access token using refresh token
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - refreshToken
+                            properties:
+                                refreshToken:
+                                    type: string
+            responses:
+                200:
+                    description: New access token issued
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/AuthResponse"
+                401:
+                    description: Invalid or expired refresh token
+
+    /auth/forgot-password:
+        post:
+            tags:
+                - Auth
+            summary: Request password reset
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - email
+                            properties:
+                                email:
+                                    type: string
+                                    example: user@example.com
+            responses:
+                200:
+                    description: Password reset email sent
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MessageResponse"
+                404:
+                    description: User not found
+
+    /auth/reset-password:
+        post:
+            tags:
+                - Auth
+            summary: Reset password using token
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - token
+                                - password
+                            properties:
+                                token:
+                                    type: string
+                                    description: Password reset token
+                                password:
+                                    type: string
+                                    description: New password
+            responses:
+                200:
+                    description: Password reset successful
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MessageResponse"
+                400:
+                    description: Invalid or expired token
+
+    /auth/logout:
+        post:
+            tags:
+                - Auth
+            summary: Logout user and clear refresh token cookie
+            responses:
+                200:
+                    description: Logout successful
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MessageResponse"
+
+    /oauth/google:
+        get:
+            tags:
+                - OAuth
+            summary: Redirect user to Google OAuth login
+            responses:
+                302:
+                    description: Redirects to Google login page
+
+    /oauth/google/callback:
+        get:
+            tags:
+                - OAuth
+            summary: Google OAuth callback
+            parameters:
+                - in: query
+                  name: code
+                  schema:
+                      type: string
+                  description: Authorization code returned by Google
+                - in: query
+                  name: scope
+                  schema:
+                      type: string
+                  description: Granted scopes
+            responses:
+                302:
+                    description: Redirects to frontend with tokens
+                401:
+                    description: OAuth login failed
+
+    /oauth/success:
+        get:
+            tags:
+                - OAuth
+            summary: OAuth success handler
+            responses:
+                200:
+                    description: OAuth login success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/AuthResponse"
+
+    /oauth/failure:
+        get:
+            tags:
+                - OAuth
+            summary: OAuth failure handler
+            responses:
+                401:
+                    description: OAuth login failed
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MessageResponse"
+
+components:
+    schemas:
+        AuthResponse:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    example: 201
+                success:
+                    type: boolean
+                    example: true
+                message:
+                    type: string
+                    example: "User logged in successfully"
+                data:
+                    type: object
+                    properties:
+                        user:
+                            type: object
+                            properties:
+                                id:
+                                    type: string
+                                    example: "cluid123"
+                                name:
+                                    type: string
+                                    example: "John Doe"
+                                email:
+                                    type: string
+                                    example: "user@example.com"
+                                avatar_url:
+                                    type: string
+                                    example: "https://avatar.com/john.jpg"
+                                role:
+                                    type: string
+                                    example: "customer"
+                        accessToken:
+                            type: string
+                            example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+        MessageResponse:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    example: 200
+                success:
+                    type: boolean
+                    example: true
+                message:
+                    type: string
+                    example: "Password reset email sent successfully"

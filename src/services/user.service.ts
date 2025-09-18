@@ -31,7 +31,6 @@ const createUser = async (data: {
 	const user = await prisma.user.create({
 		data: {
 			id: data.id,
-			name: data.name,
 			email: data.email,
 			password_hash,
 			avatar_url: data.avatar,
@@ -45,14 +44,14 @@ const createUser = async (data: {
 	await publishEmail({
 		to: user.email,
 		template: "activateUser",
-		data: { name: user.name, code: "1234" },
+		data: { name: data.name, code: "1234" },
 	});
 
 	// Send welcome email
 	await publishEmail({
 		to: user.email,
 		template: "welcome",
-		data: { name: user.name },
+		data: { name: data.name },
 	});
 
 	return user;
@@ -65,7 +64,7 @@ const loginUser = async (email: string, password: string) => {
 	});
 
 	if (!user || !user.password_hash)
-		throw new ApiError(401, "Invalid credentials");
+		throw new ApiError(401, "User not found or invalid credentials");
 
 	const match = await bcryptjs.compare(password, user.password_hash);
 	if (!match) throw new ApiError(401, "Invalid credentials");
