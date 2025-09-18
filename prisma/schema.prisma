@@ -1,0 +1,118 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id                String     @id @default(cuid())
+    email             String     @unique @db.VarChar(255)
+    password_hash     String?    @db.VarChar(255) // Nullable for OAuth users
+    avatar_url        String?    @db.VarChar(500)
+    provider          String     @default("local") @db.VarChar(20) // 'local', 'google', 'facebook'
+    provider_id       String?    @db.VarChar(255) // For OAuth providers
+    status            UserStatus @default(PENDING)
+    is_email_verified Boolean    @default(false)
+    last_login_at     DateTime?
+    created_at        DateTime   @default(now())
+    updated_at        DateTime   @updatedAt
+    deleted_at        DateTime?
+
+    // Relation: one user has one role
+    role_id String
+    role    Role   @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+    // Relations
+    audit_logs AuditLog[]
+
+    // Indexes
+    @@index([email, status])
+    @@index([provider, provider_id])
+    @@index([created_at])
+    @@index([status])
+    @@map("users")
+}
+
+model Role {
+    id          String    @id @default(cuid())
+    name        String    @unique @db.VarChar(100)
+    description String?   @db.VarChar(500)
+    is_system   Boolean   @default(false) // System roles cannot be deleted
+    created_at  DateTime  @default(now())
+    updated_at  DateTime  @updatedAt
+    deleted_at  DateTime?
+
+    // Relation: one role has many users
+    users User[]
+
+    // Relation: one role has many permissions
+    role_permissions RolePermission[]
+
+    // Indexes
+    @@index([name])
+    @@index([is_system])
+    @@map("roles")
+}
+
+model Permission {
+    id          String   @id @default(cuid())
+    name        String   @unique @db.VarChar(100)
+    description String?  @db.VarChar(500)
+    resource    String   @db.VarChar(100) // e.g., 'user', 'product', 'order'
+    action      String   @db.VarChar(50) // e.g., 'create', 'read', 'update', 'delete'
+    created_at  DateTime @default(now())
+    updated_at  DateTime @updatedAt
+
+    // Relations
+    role_permissions RolePermission[]
+
+    @@unique([resource, action, name])
+    @@index([resource, action])
+    @@map("permissions")
+}
+
+model RolePermission {
+    id            String   @id @default(cuid())
+    role_id       String
+    permission_id String
+    created_at    DateTime @default(now())
+
+    // Relations
+    role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+    permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+    @@unique([role_id, permission_id])
+    @@map("role_permissions")
+}
+
+model AuditLog {
+    id          String   @id @default(cuid())
+    user_id     String
+    action      String   @db.VarChar(100) // e.g., 'login', 'logout', 'password_change'
+    resource    String?  @db.VarChar(100) // e.g., 'user', 'role'
+    resource_id String?  @db.VarChar(100)
+    details     Json? // Additional details in JSON format
+    ip_address  String?  @db.VarChar(45) // Supports IPv6
+    user_agent  String?  @db.Text
+    created_at  DateTime @default(now())
+
+    // Relations
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    // Indexes
+    @@index([user_id])
+    @@index([action])
+    @@index([resource, resource_id])
+    @@index([created_at])
+    @@map("audit_logs")
+}
+
+enum UserStatus {
+    PENDING
+    ACTIVE
+    SUSPENDED
+    DELETED
+}
