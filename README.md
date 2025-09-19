@@ -217,16 +217,16 @@ GET /api/auth/oauth/google
 
 ## API Endpoints
 
-| Route                             | Method | Description                              |
-| --------------------------------- | ------ | ---------------------------------------- |
-| `/api/auth/register`              | POST   | Register new user (local strategy)       |
-| `/api/auth/login`                 | POST   | Login with email/password                |
-| `/api/auth/refresh-token`         | POST   | Refresh access token                     |
-| `/api/auth/forgot-password`       | POST   | Request password reset                   |
-| `/api/auth/reset-password`        | POST   | Reset password using token               |
-| `/api/auth/logout`                | POST   | Logout user and invalidate refresh token |
-| `/api/auth/oauth/google`          | GET    | Redirect to Google OAuth login           |
-| `/api/auth/oauth/google/callback` | GET    | Google OAuth callback                    |
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/auth/register` | POST | Register new user (local strategy) |
+| `/api/auth/login` | POST | Login with email/password |
+| `/api/auth/refresh-token` | POST | Refresh access token |
+| `/api/auth/forgot-password` | POST | Request password reset |
+| `/api/auth/reset-password` | POST | Reset password using token |
+| `/api/auth/logout` | POST | Logout user and invalidate refresh token |
+| `/api/auth/oauth/google` | GET | Redirect to Google OAuth login |
+| `/api/auth/oauth/google/callback` | GET | Google OAuth callback |
 
 ## Publishing Messages
 
