@@ -56,7 +56,7 @@
                          Notification Service
 ```
 
-# Features
+## Features
 
 1. Local Strategy: email/password authentication
 
@@ -78,7 +78,7 @@
 
 10. Fully decoupled microservice architecture
 
-# Folder Structure
+## Folder Structure
 
 ```
 auth-service/
@@ -126,7 +126,7 @@ auth-service/
 └─ README.md
 ```
 
-# Installation
+## Installation
 
 ```
 # Clone repository
@@ -137,7 +137,7 @@ cd auth-service
 npm install
 ```
 
-# Environment Variables
+## Environment Variables
 
 Create a `.env` file based on `.env.example`:
 
@@ -173,7 +173,7 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 RABBITMQ_URI=amqp://localhost:5672
 ```
 
-# Scripts
+## Scripts
 
 ```
 # Development
@@ -187,7 +187,7 @@ npm run build
 npm start
 ```
 
-# Usage
+## Usage
 
 1. **Start PostgreSQL**
 
@@ -215,7 +215,7 @@ Body:
 GET /api/auth/oauth/google
 ```
 
-# API Endpoints
+## API Endpoints
 
 | Route                             | Method | Description                              |
 | --------------------------------- | ------ | ---------------------------------------- |
@@ -228,7 +228,7 @@ GET /api/auth/oauth/google
 | `/api/auth/oauth/google`          | GET    | Redirect to Google OAuth login           |
 | `/api/auth/oauth/google/callback` | GET    | Google OAuth callback                    |
 
-# Publishing Messages
+## Publishing Messages
 
 Auth Service publishes messages to **Notification Service** via RabbitMQ:
 
@@ -241,7 +241,7 @@ await publishCustomerCreate({
 });
 ```
 
-# Contributing
+## Contributing
 
 -   Use TypeScript with strict typing.
 
@@ -251,7 +251,7 @@ await publishCustomerCreate({
 
 -   Follow linting and code style rules.
 
-# License
+## License
 
 MIT License © 2025
 
